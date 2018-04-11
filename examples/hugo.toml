@@ -1,0 +1,49 @@
+# name of the profile, we will auto prefix with `docker-`
+# so the final profile name will be `docker-hugo`
+Name = "hugo"
+
+[Filesystem]
+# read only paths for the container
+ReadOnlyPaths = [
+  "/bin/**",
+  "/boot/**",
+  "/dev/**",
+  "/etc/**",
+  "/home/**",
+  "/lib/**",
+  "/lib64/**",
+  "/media/**",
+  "/mnt/**",
+  "/opt/**",
+  "/proc/**",
+  "/root/**",
+  "/sbin/**",
+  "/srv/**",
+  "/tmp/**",
+  "/sys/**",
+  "/usr/**",
+]
+
+# paths where you want to log on write
+LogOnWritePaths = [
+  "/**"
+]
+
+# paths where you can write
+WritablePaths = [
+  "/tmp/hugo_cache"
+]
+
+# allowed executable files for the container
+AllowExec = [
+  "/usr/bin/hugo",
+  "/bin/sh",
+  "/bin/busybox",
+]
+
+[Network]
+Raw = false
+Packet = false
+Protocols = [
+  "tcp",
+]

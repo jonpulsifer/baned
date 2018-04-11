@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: baned
+  namespace: baned
+spec:
+  selector:
+    matchLabels:
+      k8s-app: baned
+  updateStrategy:
+    type: "RollingUpdate"
+    rollingUpdate:
+      maxUnavailable: "100%"
+  template:
+    metadata:
+      labels:
+        k8s-app: baned
+    spec:
+      automountServiceAccountToken: false
+      # the runOnce daemonset hack :)
+      initContainers:
+      # https://github.com/kubernetes/git-sync
+      - name: git-sync
+        image: k8s.gcr.io/git-sync:v2.0.6
+        env:
+        - name: GIT_SYNC_ONE_TIME
+          value: "true"
+        # TODO: move to jonpulsifer/baned
+        - name: GIT_SYNC_REPO
+          value: https://github.com/j0npulsifer/baned
+        volumeMounts:
+        - name: git
+          mountPath: /git
+      - name: bane
+        # https://github.com/j0npulsifer/baned
+        image: jonpulsifer/baned:latest
+        imagePullPolicy: IfNotPresent
+        command: ["sh", "-c", 'find /git/baned/examples -type f -name "*.toml" -exec bane {} \;']
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+        volumeMounts:
+        - name: git
+          mountPath: /git
+          readOnly: true
+        - name: apparmor-includes
+          mountPath: /etc/apparmor.d
+        - name: sys
+          mountPath: /sys
+          readOnly: true
+      containers:
+      # https://github.com/kubernetes/kubernetes/tree/master/build/pause
+      - name: pause
+        image: k8s.gcr.io/pause:3.1
+      volumes:
+      # The /sys directory must be mounted to interact with the AppArmor module
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: apparmor-includes
+        hostPath:
+          path: /etc/apparmor.d
+      # shared volume for git-sync and bane containers
+      - name: git
+        emptyDir: {}

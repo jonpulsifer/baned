@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  annotations:
+    apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
+    apparmor.security.beta.kubernetes.io/defaultProfileName: runtime/default
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default
+    seccomp.security.alpha.kubernetes.io/defaultProfileName: docker/default
+  name: baned
+spec:
+  allowPrivilegeEscalation: true
+  allowedHostPaths:
+  - pathPrefix: /sys
+  - pathPrefix: /etc/apparmor.d
+  defaultAllowPrivilegeEscalation: false
+  fsGroup:
+    ranges:
+    - max: 0
+      min: 0
+    rule: MustRunAs
+  privileged: true
+  readOnlyRootFilesystem: true
+  requiredDropCapabilities:
+  - ALL
+  runAsUser:
+    ranges:
+    - max: 0
+      min: 0
+    rule: MustRunAs
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    ranges:
+    - max: 0
+      min: 0
+    rule: MustRunAs
+  volumes:
+  - hostPath
+  - emptyDir

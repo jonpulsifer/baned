@@ -1,0 +1,26 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: namespace-psp
+  namespace: baned
+rules:
+- apiGroups: ['extensions']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+  - baned
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: namespace-psp
+  namespace: baned
+roleRef:
+  kind: Role
+  name: namespace-psp
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+# Authorize all service accounts in the baned namespace
+- kind: Group
+  apiGroup: rbac.authorization.k8s.io
+  name: system:serviceaccounts:baned
