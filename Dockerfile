@@ -1,4 +1,4 @@
-FROM golang:1.18.1-alpine AS builder
+FROM golang:1.22.0-alpine AS builder
 RUN apk add --no-cache git \
  && go get -v github.com/genuinetools/bane
 
